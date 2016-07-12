@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "#Build dw nominate data frame that can match exactly to \n\ncols <- c(\"congress\", \"icspr\", \"state.code\", \"district\", \"state.dw\", \"party\", \"name\", \"firstd\", \"secondd\", \"firstd_se\", \"secondd_se\", \"correlation\", \"loglik\", \"votes\", \"class_errors\", \"mean_prob\")\nsenate <- read_excel(\"C:/Google Drive/Projects/Dissertation/congress/input/dwnom/dwnom_senate.xlsx\", col_names = cols)\n\nsenate113 <- senate %>% filter(congress == 113) %>% select(congress, state.code, state.dw, party, name, dwnom = firstd, secondd)\n",
+    "created" : 1468357355583.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "3193093005",
+    "id" : "F11786C8",
+    "lastKnownWriteTime" : 33495724092030976,
+    "last_content_update" : 1468357723252,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

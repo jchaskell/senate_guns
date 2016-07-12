@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "library(dplyr)\nlibrary(stringr)\nlibrary(readr)\nlibrary(readxl)\n\n#eventually want command line inputs: input file and DW Nominate file\n\ncr <- read_tsv(\"senate_2016.tsv\")\n\n#eliminate non-senators\ncr <- cr %>% filter(str_detect(speaker, \"The PRESIDENT pro tempore\") == F & str_detect(speaker, \"The PRESIDING OFFICER\") == F) #this fixes dates\n\n#eliminate name from speech and period from name\ncr$speech <- str_replace(cr$speech, paste0(\"^\", cr$speaker, \"\\\\s\"), \"\")\ncr$speaker <- str_replace(cr$speaker, \"([A-Z])\\\\.(\\\\s)?$\", \"\\\\1\")\ncr$speaker <- str_to_upper(cr$speaker)\n\n#match to DW Nominate to get both state, party, full name, ideology; \n#create a data frame for 113th Congress Senate + column for speaker name\n\ncols <- c(\"congress\", \"icspr\", \"state.code\", \"district\", \"state.dw\", \"party\", \"name\", \"firstd\", \"secondd\", \"firstd_se\", \"secondd_se\", \"correlation\", \"loglik\", \"votes\", \"class_errors\", \"mean_prob\")\nsenate <- read_excel(\"C:/Google Drive/Projects/Dissertation/congress/input/dwnom/dwnom_senate.xlsx\", col_names = cols)\n\nsenate114 <- senate %>% filter(congress == 114)\n\nsenate114$party <- ifelse(senate114$party == 200, \"Republican\", ifelse(senate114$party == 100, \"Democratic\", \"Independent\"))\n\nsenate114$name <- str_replace(senate114$name, \"(^[A-Z]+)\\\\s+[A-Z]+\", \"\\\\1\")\n#misspellings\nsenate114$name <- ifelse(senate114$name == \"BARASSO\", \"BARRASSO\", senate114$name)\nspeakers_unique <- unique(cr$speaker)\nmr <- paste(\"MR.\", senate114$name)\nms <- paste(\"MS.\", senate114$name)\nmrs <- paste(\"MRS.\", senate114$name)\n\nsenate114$speaker <- ifelse(mr %in% speakers_unique, mr, ifelse(ms %in% speakers_unique, ms, ifelse(mrs %in% speakers_unique, mrs, NA)))\nsenate114$speaker <- str_trim(senate114$speaker)\n\n# View(senate114[,c(\"name\", \"speaker\")])\n# fix <- setdiff(speakers_unique, senate114$speaker)\n\n#Correct mispellings in CR\ncr$speaker <- ifelse(cr$speaker == \"MR. DURBN\", \"MR. DURBIN\", ifelse(cr$speaker == \"MS. MURKOWKSI\", \"MS. MURKOWSKI\", ifelse(cr$speaker == \"MRS. CANTWELL\", \"MS. CANTWELL\", cr$speaker)))\n\n#test merge with DW Nominate\ntest <- merge(cr, senate114, by = \"speaker\", all.x = T)\ntest <- test %>% filter(is.na(party) == T) #should have 0 rows\n\n#Figure out which title marks the filibuster\nfilibuster <- cr %>% filter(date == as.Date(\"2016-06-15\"))\ntable(filibuster$title)\nfilibuster2 <- filibuster %>% filter(title == \"GENERAL PROVISIONS\")\n\ncr$filibuster <- ifelse(cr[,1] >= 10860 & cr[,1] <= 11263, 1, 0)\n\ncr2016 <- cr\n\nsave(cr2016, senate114, file = \"senate_cr_2016.RData\")\n",
+    "created" : 1468278201731.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "652853770",
+    "id" : "FFB2C74A",
+    "lastKnownWriteTime" : 1468364616,
+    "last_content_update" : 1468364616020,
+    "path" : "C:/Google Drive/Projects/senate_guns/clean_cr.R",
+    "project_path" : "clean_cr.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
